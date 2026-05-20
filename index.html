@@ -13,14 +13,17 @@ textarea{width:100%;height:100px;margin:10px 0;} button{width:100%;padding:10px;
 <script>
 function encode(){
     const str = document.getElementById('in').value;
-    document.getElementById('out').value = btoa(unescape(encodeURIComponent(str)));
+    document.getElementById('out').value = btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) { return String.fromCharCode('0x' + p1); }));
 }
 function decode(){
     const str = document.getElementById('in').value;
     try {
-        document.getElementById('out').value = decodeURIComponent(escape(window.atob(str)));
+        document.getElementById('out').value = decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
     } catch(e) {
-        alert("無效的 Base64 字串");
+        alert("無效的 Base64 字串或解碼錯誤");
     }
 }
 </script>
